@@ -1,6 +1,7 @@
 import os
 import cv2
 import pickle
+import numpy as np
 
 DATASET_PATH = 'datasets'
 MODEL_PATH = 'models/face_recognizer.yml'
@@ -26,6 +27,10 @@ for person_name in os.listdir(DATASET_PATH):
         labels.append(current_id)
 
     current_id += 1
+
+# Convert faces and labels to NumPy arrays
+faces = np.array(faces)
+labels = np.array(labels)
 
 # Train the recognizer
 recognizer.train(faces, labels)

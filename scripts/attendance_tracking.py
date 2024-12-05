@@ -2,7 +2,9 @@ import cv2
 import pickle
 import pandas as pd
 from datetime import datetime
+import os
 
+# Paths for the model, labels, and logs
 MODEL_PATH = 'models/face_recognizer.yml'
 LABELS_PATH = 'models/labels.pkl'
 LOG_PATH = 'logs/attendance.csv'
@@ -14,8 +16,11 @@ recognizer.read(MODEL_PATH)
 with open(LABELS_PATH, 'rb') as f:
     label_map = pickle.load(f)
 
-# Initialize attendance log
-attendance = pd.DataFrame(columns=['Name', 'Time'])
+# Create attendance DataFrame if it doesn't exist
+if not os.path.exists(LOG_PATH):
+    attendance = pd.DataFrame(columns=['Name', 'Time'])
+else:
+    attendance = pd.read_csv(LOG_PATH)
 
 # Start video capture
 cap = cv2.VideoCapture(0)
@@ -39,9 +44,9 @@ while True:
             name = label_map[label]
             now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-            # Log attendance
-            if not attendance[attendance['Name'] == name].empty:
-                attendance = attendance.append({'Name': name, 'Time': now}, ignore_index=True)
+            # Log attendance using pd.concat
+            new_row = pd.DataFrame({'Name': [name], 'Time': [now]})
+            attendance = pd.concat([attendance, new_row], ignore_index=True)
 
             # Draw rectangle and name on the frame
             cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
@@ -53,8 +58,7 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-# Save attendance to a CSV file
-attendance.drop_duplicates(subset=['Name'], keep='first', inplace=True)
+# Save the attendance log to CSV
 attendance.to_csv(LOG_PATH, index=False)
 
 cap.release()

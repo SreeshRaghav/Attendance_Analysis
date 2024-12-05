@@ -4,8 +4,8 @@ import seaborn as sns
 import os
 
 # Load the attendance log
-LOG_PATH = '../logs/attendance.csv'
-OUTPUT_FOLDER = '../outputs/'
+LOG_PATH = 'logs/attendance.csv'
+OUTPUT_FOLDER = 'outputs/'
 
 if not os.path.exists(OUTPUT_FOLDER):
     os.makedirs(OUTPUT_FOLDER)
